@@ -1,18 +1,14 @@
 {
-  "name": "telegram-bot-lc7",
+  "name": "bot-vendas-bin",
   "version": "1.0.0",
-  "description": "Bot de consultas e vendas automáticas no Telegram",
+  "description": "Bot de Vendas, Suporte e Busca de BIN",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.5",
     "node-telegram-bot-api": "^0.66.0",
     "sqlite3": "^5.1.7"
   }
 }
-
