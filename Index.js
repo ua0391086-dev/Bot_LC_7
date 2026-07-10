@@ -2,7 +2,7 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 
 // Substitua pelo Token que você pegou no @BotFather
-const token = process.env.TELEGRAM_TOKEN || 'SEU_TOKEN_DO_TELEGRAM_AQUI';
+const token = process.env.TELEGRAM_TOKEN || '8883919914:AAH331NrKZ3fpX5neb5RbyO4iWsXw5phkEc';
 const bot = new TelegramBot(token, { polling: true });
 
 // 1. MENU PRINCIPAL (Disparado com /start)
