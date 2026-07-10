@@ -20,7 +20,7 @@ db.run(`
 `);
 
 // --- CONFIGURAÇÃO DO BOT ---
-const token = process.env.TELEGRAM_TOKEN || 'SEU_TOKEN_DO_TELEGRAM_AQUI';
+const token = process.env.TELEGRAM_TOKEN || '8883919914:AAH331NrKZ3fpX5neb5RbyO4iWsXw5phkEc';
 const bot = new TelegramBot(token, { polling: true });
 
 // --- FUNÇÕES AUXILIARES DO BANCO ---
