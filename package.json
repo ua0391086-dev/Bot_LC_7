@@ -1,14 +1,12 @@
 {
-  "name": "bot-frases-cria",
+  "name": "bot-vendas-frases",
   "version": "1.0.0",
-  "description": "Bot de Vendas de Frases de Cria e Status",
-  "main": "index.js",
+  "description": "Bot de vendas de frases para Telegram",
+  "main": "bot.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node bot.js"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "node-telegram-bot-api": "^0.66.0",
-    "sqlite3": "^5.1.7"
+    "grammy": "^1.20.0"
   }
 }
