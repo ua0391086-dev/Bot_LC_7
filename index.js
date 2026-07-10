@@ -23,7 +23,16 @@ db.run(`
     )
 `);
 
-// Função para registrar/buscar cliente
+// Lista interna de frases gratuitas para o comando de buscar
+const frasesDeCria = [
+    "Progresso pros nossos, porque pra atrasar já tem muita gente. Visão! 💸🎭",
+    "Quem tem foco no objetivo não perde tempo olhando pro lado. Fé em Deus. 🙏🚩",
+    "Humildade não é ser menos que ninguém, é saber que somos todos iguais. No topo ou na lama. 🚶‍♂️💨",
+    "A inveja dorme leve, por isso minha rotina é no silêncio e o progresso é barulhento. 🤫🥇",
+    "Muitos querem ver o fim do filme, mas poucos ajudaram a comprar o ingresso. Pouco papo. 🎬❌",
+    "Dinheiro no bolso é bom, mas lealdade na mesa vale muito mais. Caráter vem de berço. 🤝👑"
+];
+
 function gerenciarUsuario(id, nome, callback) {
     db.get("SELECT * FROM usuarios WHERE id_telegram = ?", [id], (err, row) => {
         if (row) return callback(row);
@@ -37,14 +46,14 @@ function gerenciarUsuario(id, nome, callback) {
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     gerenciarUsuario(msg.from.id, msg.from.first_name, (user) => {
-        const texto = `👋 Olá, *${user.nome}*!\n\n🆔 *Seu ID:* \`${user.id_telegram}\`\n💰 *Saldo:* R$ ${user.saldo.toFixed(2).replace('.', ',')}\n\nEscolha uma opção no menu abaixo:`;
+        const texto = `🎭 *LOJA FRASES DE CRIA* 🎭\n\n👋 Salve, *${user.nome}*!\nAqui você encontra as melhores visões de progresso, status e bios exclusivas.\n\n🆔 *Seu ID:* \`${user.id_telegram}\`\n💰 *Saldo:* R$ ${user.saldo.toFixed(2).replace('.', ',')}\n\nEscolha uma opção no menu:`;
         
         bot.sendMessage(chatId, texto, {
             reply_markup: {
                 inline_keyboard: [
-                    [{ text: "💳 Buscar BIN", callback_data: "menu_bin" }],
-                    [{ text: "🛒 Comprar", callback_data: "menu_comprar" }],
-                    [{ text: "📞 Suporte", callback_data: "menu_suporte" }]
+                    [{ text: "🎲 Gerar Frase Aleatória", callback_data: "buscar_frase" }],
+                    [{ text: "🛒 Comprar Pack Premium (Visões)", callback_data: "menu_comprar" }],
+                    [{ text: "📞 Falar com Suporte", callback_data: "menu_suporte" }]
                 ]
             },
             parse_mode: 'Markdown'
@@ -59,21 +68,28 @@ bot.on('callback_query', (callbackQuery) => {
     const data = callbackQuery.data;
     const userId = callbackQuery.from.id;
 
-    // --- FUNÇÃO 1: BUSCAR BIN ---
-    if (data === 'menu_bin') {
-        const txtBin = "🔍 *BUSCA DE BIN*\n\nPara buscar as informações de uma BIN, basta digitar o comando:\n`/bin 450799`\n\n_(Substitua os números pela BIN que deseja consultar)_";
-        bot.editMessageText(txtBin, {
+    // --- FUNÇÃO 1: GERAR FRASE ALEATÓRIA ---
+    if (data === 'buscar_frase') {
+        const fraseAleatoria = frasesDeCria[Math.floor(Math.random() * frasesDeCria.length)];
+        const txtFrase = `🚩 *VISÃO DE HOJE:* \n\n_"${fraseAleatoria}"_\n\n📱 _Use no seu status ou bio!_`;
+        
+        bot.editMessageText(txtFrase, {
             chat_id: chatId, message_id: msg.message_id,
-            reply_markup: { inline_keyboard: [[{ text: "« Voltar", callback_data: "voltar_main" }]] },
+            reply_markup: { 
+                inline_keyboard: [
+                    [{ text: "🔄 Gerar Outra", callback_data: "buscar_frase" }],
+                    [{ text: "« Voltar", callback_data: "voltar_main" }]
+                ] 
+            },
             parse_mode: 'Markdown'
         });
     }
 
-    // --- FUNÇÃO 2: COMPRAR ---
+    // --- FUNÇÃO 2: COMPRAR PACK ---
     if (data === 'menu_comprar') {
         db.get("SELECT saldo FROM usuarios WHERE id_telegram = ?", [userId], (err, row) => {
             const saldo = row ? row.saldo : 0.0;
-            const txtComprar = `🛒 *PAINEL DE VENDAS*\n\n💰 *Seu Saldo:* R$ ${saldo.toFixed(2)}\n\n⚠️ Você não possui saldo suficiente para comprar.\nPara adicionar saldo, entre em contato com o suporte técnico.`;
+            const txtComprar = `🛒 *LOJA DE PACKS* 💸\n\n📦 *Pack Cria VIP (Mais de 500 Frases + 50 Bios do IG)*\n💵 *Preço:* R$ 10,00\n\n💰 *Seu Saldo Atual:* R$ ${saldo.toFixed(2).replace('.', ',')}\n\n⚠️ Você não possui saldo suficiente.\nPara depositar via PIX e liberar o pack, acione o suporte abaixo.`;
             
             bot.editMessageText(txtComprar, {
                 chat_id: chatId, message_id: msg.message_id,
@@ -85,7 +101,7 @@ bot.on('callback_query', (callbackQuery) => {
 
     // --- FUNÇÃO 3: SUPORTE ---
     if (data === 'menu_suporte') {
-        const txtSuporte = "📞 *SUPORTE AO CLIENTE*\n\nPrecisa de ajuda com saldo, dúvidas ou reportar problemas?\n\n👤 *Atendimento Oficial:* @SeuUsuarioDoSuporte\n⏰ *Horário:* Todos os dias";
+        const txtSuporte = "📞 *SUPORTE OFICIAL*\n\nPrecisa colocar saldo para comprar packs ou tirar dúvidas?\n\n👤 *Atendimento direto:* @SeuUsuarioDoSuporte\n\nMande o comprovante para o suporte liberar seu saldo na hora!";
         bot.editMessageText(txtSuporte, {
             chat_id: chatId, message_id: msg.message_id,
             reply_markup: { inline_keyboard: [[{ text: "« Voltar", callback_data: "voltar_main" }]] },
@@ -96,14 +112,14 @@ bot.on('callback_query', (callbackQuery) => {
     // AÇÃO VOLTAR
     if (data === 'voltar_main') {
         db.get("SELECT * FROM usuarios WHERE id_telegram = ?", [userId], (err, user) => {
-            const texto = `👋 Olá, *${user.nome}*!\n\n🆔 *Seu ID:* \`${user.id_telegram}\`\n💰 *Saldo:* R$ ${user.saldo.toFixed(2).replace('.', ',')}\n\nEscolha uma opção no menu abaixo:`;
+            const texto = `🎭 *LOJA FRASES DE CRIA* 🎭\n\n👋 Salve, *${user.nome}*!\nAqui você encontra as melhores visões de progresso, status e bios exclusivas.\n\n🆔 *Seu ID:* \`${user.id_telegram}\`\n💰 *Saldo:* R$ ${user.saldo.toFixed(2).replace('.', ',')}\n\nEscolha uma opção no menu:`;
             bot.editMessageText(texto, {
                 chat_id: chatId, message_id: msg.message_id,
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: "💳 Buscar BIN", callback_data: "menu_bin" }],
-                        [{ text: "🛒 Comprar", callback_data: "menu_comprar" }],
-                        [{ text: "📞 Suporte", callback_data: "menu_suporte" }]
+                        [{ text: "🎲 Gerar Frase Aleatória", callback_data: "buscar_frase" }],
+                        [{ text: "🛒 Comprar Pack Premium (Visões)", callback_data: "menu_comprar" }],
+                        [{ text: "📞 Falar com Suporte", callback_data: "menu_suporte" }]
                     ]
                 ],
                 parse_mode: 'Markdown'
@@ -114,35 +130,13 @@ bot.on('callback_query', (callbackQuery) => {
     bot.answerCallbackQuery(callbackQuery.id);
 });
 
-// ⚡ LÓGICA DO COMANDO /bin (Simulando uma resposta de consulta)
-bot.onText(/\/bin (.+)/, (msg, match) => {
-    const chatId = msg.chat.id;
-    const binDigitada = match[1].trim();
-
-    if (binDigitada.length < 6) {
-        return bot.sendMessage(chatId, "❌ Digite pelo menos os 6 primeiros dígitos da BIN.");
-    }
-
-    // Exemplo de resposta simulada. No futuro você pode conectar isso a uma API de BIN externa
-    const resultadoBin = `
-💳 *RESULTADO DA BIN:* \`${binDigitada.substring(0, 6)}\`
-
-🔹 *Bandeira:* VISA
-🔹 *Tipo:* CREDIT
-🔹 *Nível:* CLASSIC
-🔹 *Banco:* BANCO DO BRASIL S.A.
-🔹 *País:* Brasil 🇧🇷
-    `;
-
-    bot.sendMessage(chatId, resultadoBin, { parse_mode: 'Markdown' });
-});
-
-// COMANDO PARA ADMIN ADICIONAR SALDO DE TESTE: Ex: /addsaldo 50
+// COMANDO EXCLUSIVO DE ADMIN PARA ADICIONAR SALDO: Exemplo no chat: /addsaldo 15
 bot.onText(/\/addsaldo (.+)/, (msg, match) => {
     const quantia = parseFloat(match[1]);
     db.run("UPDATE usuarios SET saldo = saldo + ? WHERE id_telegram = ?", [quantia, msg.from.id], () => {
-        bot.sendMessage(msg.chat.id, `💰 R$ ${quantia} adicionados para testes!`);
+        bot.sendMessage(msg.chat.id, `💰 R$ ${quantia.toFixed(2)} adicionados com sucesso para testes!`);
     });
 });
 
-console.log("🤖 Bot focado em Vendas/BIN inicializado!");
+console.log("🤖 Bot Frases de Cria rodando com sucesso!");
+
