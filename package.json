@@ -1,7 +1,7 @@
 {
-  "name": "bot-vendas-bin",
+  "name": "bot-frases-cria",
   "version": "1.0.0",
-  "description": "Bot de Vendas, Suporte e Busca de BIN",
+  "description": "Bot de Vendas de Frases de Cria e Status",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
